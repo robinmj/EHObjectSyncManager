@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
 
 // Determines whether an instance of a managed object is being actively edited in a managed object edit view controller
 BOOL EHManagedObjectEditViewControllerIsEditingOtherObject(NSManagedObject *managedObject);

@@ -6,6 +6,10 @@
 //  Copyright (c) 2013 Eric Horacek. All rights reserved.
 //
 
+//this is necessary in order to convince XCode that AFHTTPClient's reachability status functions are available
+
+#import <SystemConfiguration/SystemConfiguration.h>
+
 #import "EHObjectSyncManager.h"
 
 NSString * const EHObjectSyncRequestMethod = @"EHObjectSyncRequestMethod"; // RKRequestMethod string
