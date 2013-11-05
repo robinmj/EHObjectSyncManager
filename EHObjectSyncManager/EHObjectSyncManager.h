@@ -50,6 +50,8 @@
  */
 - (void)removeSyncDescriptor:(EHSyncDescriptor *)syncDescriptor;
 
+- (void)forceSync;
+
 @end
 
 typedef BOOL (^EHSyncDescriptorExistsRemotelyBlock)(NSManagedObject *managedObject);

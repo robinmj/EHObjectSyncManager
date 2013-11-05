@@ -402,6 +402,13 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
     self.objectSyncOperationQueue.suspended = NO;
 }
 
+- (void)forceSync
+{
+    [self.managedObjectContext performBlock:^{
+        [self sync];
+    }];
+}
+
 @end
 
 @interface EHSyncDescriptor ()
