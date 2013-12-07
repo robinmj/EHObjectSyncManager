@@ -232,6 +232,12 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
         // Don't continue If the object doesn't exist remotely
         if ([syncDescriptor existsRemotelyBlock](managedObject) == NO) continue;
         
+        RKRoute* route = [self.router.routeSet routeForObject:managedObject method:RKRequestMethodPUT];
+        if(!route) {
+            NSLog(@"OBJECT SYNC: no PUT route exists for %@, aborting", managedObject);
+            continue;
+        }
+        
         NSString *objectID = [[managedObject.objectID URIRepresentation] absoluteString];
         
         // Don't override a existing enqueued POST
@@ -256,6 +262,12 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
         
         // If the object already exists remotely, don't enqueue a POST
         if ([syncDescriptor existsRemotelyBlock](managedObject)) continue;
+        
+        RKRoute* route = [self.router.routeSet routeForObject:managedObject method:RKRequestMethodPOST];
+        if(!route) {
+            NSLog(@"OBJECT SYNC: no POST route exists for %@, aborting", managedObject);
+            continue;
+        }
         
         NSString *objectID = [[managedObject.objectID URIRepresentation] absoluteString];
         NSDictionary *syncDictionary = @{
@@ -287,6 +299,11 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
         
         // Locate the path of the object, since it will be deleted
         RKRoute *route = [self.router.routeSet routeForObject:managedObject method:RKRequestMethodDELETE];
+        if(!route) {
+            NSLog(@"OBJECT SYNC: no DELETE route exists for %@, aborting", managedObject);
+            continue;
+        }
+        
         RKPathMatcher *pathMatcher = [RKPathMatcher pathMatcherWithPattern:route.pathPattern];
         NSString *path = [pathMatcher pathFromObject:managedObject addingEscapes:route.shouldEscapePath interpolatedParameters:nil];
         
