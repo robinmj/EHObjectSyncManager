@@ -48,6 +48,7 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
 @property (nonatomic, strong) NSMutableDictionary *syncRequestDictionary;
 @property (nonatomic, strong) NSMutableArray *mutableSyncDescriptors;
 @property (nonatomic, strong) NSOperationQueue *objectSyncOperationQueue;
+@property (nonatomic, strong) NSArray *autoSyncConnectionStates;
 
 - (void)handlePersistentStoreManagedObjectContextDidSaveNotification:(NSNotification *)notification;
 - (void)handleManagedObjectContextDidChangeNotification:(NSNotification *)notification;
@@ -64,6 +65,8 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
 {
     self = [super initWithHTTPClient:client];
     if (self) {
+        self.onlyAutosyncOverWiFi = NO;
+        
         self.mutableSyncDescriptors = [NSMutableArray new];
         self.objectSyncOperationQueue = [NSOperationQueue new];
         
@@ -99,7 +102,7 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
     
     __weak typeof (self) weakSelf = self;
     [self.HTTPClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        if ((status == AFNetworkReachabilityStatusReachableViaWiFi) || (status == AFNetworkReachabilityStatusReachableViaWWAN)) {
+        if ([weakSelf.autoSyncConnectionStates containsObject:[NSNumber numberWithInt:status]]) {
             [weakSelf.managedObjectContext performBlock:^{
                 [weakSelf sync];
             }];
@@ -417,6 +420,20 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
     
     // Start the network queue
     self.objectSyncOperationQueue.suspended = NO;
+}
+
+#pragma mark Only Autosync Over WiFi
+
+- (void)setOnlyAutosyncOverWiFi:(BOOL)onlyAutosyncOverWiFi
+{
+    _onlyAutosyncOverWiFi = onlyAutosyncOverWiFi;
+    
+    if(_onlyAutosyncOverWiFi) {
+        self.autoSyncConnectionStates = @[[NSNumber numberWithInt:AFNetworkReachabilityStatusReachableViaWiFi]];
+    } else {
+        self.autoSyncConnectionStates = @[[NSNumber numberWithInt:AFNetworkReachabilityStatusReachableViaWiFi],
+                                          [NSNumber numberWithInt:AFNetworkReachabilityStatusReachableViaWWAN]];
+    }
 }
 
 - (void)forceSync

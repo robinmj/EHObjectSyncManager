@@ -27,6 +27,16 @@
 @property (nonatomic, readonly) NSArray *syncDescriptors;
 
 /**
+ 
+ If set, a wifi connection is required before a background sync will be performed. Using forceSync overrides this
+ setting.
+
+ Defaults to NO
+ 
+ */
+@property (nonatomic, assign) BOOL onlyAutosyncOverWiFi;
+
+/**
  Adds a sync descriptor to the manager.
  
  Adding a sync descriptor to the manager sets the `baseURL` of the descriptor to the `baseURL` of the manager, causing it to evaluate URL objects relatively.
