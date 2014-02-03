@@ -533,9 +533,11 @@ static NSString *EHLogStringFromObjectIDAndSyncDictionary(NSString *objectID, NS
             RKObjectRequestOperation *POSTRequestOperation = [[EHObjectSyncManager sharedManager] appropriateObjectRequestOperationWithObject:self.syncObject method:self.syncRequestMethod path:nil parameters:nil];
             [POSTRequestOperation setCompletionBlockWithSuccess:^(RKObjectRequestOperation *operation, RKMappingResult *mappingResult) {
                 NSLog(@"POST Succeeded (%@)", self.syncClass);
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"postCompleted" object:self];
                 [self cleanupRequest];
             } failure:^(RKObjectRequestOperation *operation, NSError *error) {
                 NSLog(@"POST Failure (%@): %@", self.syncClass, error);
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"postFailed" object:self];
                 [self cleanupRequest];
             }];
             self.syncRequestOperation = POSTRequestOperation;
